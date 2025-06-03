@@ -1,0 +1,36 @@
+name: Build and Use Artifact
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      artifact-name: ${{ steps.upload.outputs.artifact-name }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Build Project
+        run: |
+          mkdir output
+          echo "This is a build file" > output/result.txt
+
+      - name: Upload Artifact
+        id: upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: output/result.txt
+
+  download:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: build-output
+          path: downloaded-artifacts
+
+      - name: Show Artifact Content
+        run: cat downloaded-artifacts/result.txt
